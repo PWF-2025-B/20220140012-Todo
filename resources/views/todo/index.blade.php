@@ -1,91 +1,105 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-white leading-tight">
             {{ __('Todo') }}
         </h2>
     </x-slot>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 text-xl text-gray-900 dark:text-gray-100">
+    <div class="w-full bg-gray-900 overflow-hidden shadow-sm">
+        <div class="w-full p-6 text-xl text-white">
             <div class="flex items-center justify-between mb-4">
-                <div>
-                    <x-create-button href="{{ route('todo.create') }}" />
-                </div>
+                <x-create-button href="{{ route('todo.create') }}" />
 
                 <div>
                     @if (session('success'))
                         <p x-data="{ show: true }" x-show="show" x-transition
                            x-init="setTimeout(() => show = false, 5000)"
-                           class="text-sm text-green-600 dark:text-green-400">
+                           class="text-sm text-green-400">
                             {{ session('success') }}
                         </p>
                     @endif
-
                     @if (session('danger'))
                         <p x-data="{ show: true }" x-show="show" x-transition
                            x-init="setTimeout(() => show = false, 5000)"
-                           class="text-sm text-red-600 dark:text-red-400">
+                           class="text-sm text-red-400">
                             {{ session('danger') }}
                         </p>
                     @endif
                 </div>
             </div>
 
-            {{-- Tabel Todo --}}
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
+            <div class="overflow-x-auto w-full">
+                <table class="w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-800">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                #
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Title
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Action
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse ($todos as $index => $todo)
+                    <tbody class="divide-y divide-gray-700 bg-gray-900 text-white">
+                        @forelse ($todos as $todo)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $index + 1 }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $todo->title }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                    On Going
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $todo->title }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {{ $todo->is_complete ? 'Completed' : 'On Going' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                    <a href="{{ route('todo.edit', $todo->id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400">
-                                        Edit
-                                    </a>
-                                    |
-                                    <form action="{{ route('todo.destroy', $todo->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Are you sure?')" class="text-red-600 hover:text-red-900 dark:text-red-400">
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <div class="flex justify-end gap-2">
+                                        <a href="{{ route('todo.edit', $todo) }}"
+                                           class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">
+                                            Edit
+                                        </a>
+
+                                        @if (!$todo->is_complete)
+                                            <form action="{{ route('todo.complete', $todo) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button class="text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded">
+                                                    Completed
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('todo.uncomplete', $todo) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button class="text-xs font-semibold text-white bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded">
+                                                    Uncomplete
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <form action="{{ route('todo.destroy', $todo) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    No todos found.
-                                </td>
+                                <td colspan="3" class="text-center text-gray-400 py-4">No todos found.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+
+            @if ($todosCompleted > 0)
+                <div class="mt-6">
+                    <form action="{{ route('todo.deleteAllCompleted') }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <x-primary-button class="bg-red-600 hover:bg-red-700">
+                            Delete All Completed Task
+                        </x-primary-button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
