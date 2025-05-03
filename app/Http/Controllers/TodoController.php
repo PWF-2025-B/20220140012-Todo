@@ -11,11 +11,11 @@ class TodoController extends Controller
     public function index()
     {
         $todos = Todo::where('user_id', auth()->id())
-            ->orderBy('is_complete', 'asc')
+            ->orderBy('is_done', 'asc')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $todosCompleted = $todos->where('is_complete', true)->count();
+        $todosCompleted = $todos->where('is_done', true)->count();
 
         return view('todo.index', compact('todos', 'todosCompleted'));
     }
@@ -34,7 +34,7 @@ class TodoController extends Controller
         Todo::create([
             'title' => ucfirst($request->title),
             'user_id' => Auth::id(),
-            'is_complete' => false,
+            'is_done' => false,
         ]);
 
         return redirect()->route('todo.index')->with('success', 'Todo created successfully.');
@@ -43,7 +43,7 @@ class TodoController extends Controller
     public function complete(Todo $todo)
     {
         if (Auth::id() == $todo->user_id) {
-            $todo->update(['is_complete' => true]);
+            $todo->update(['is_done' => true]);
             return redirect()->route('todo.index')->with('success', 'Todo marked as completed.');
         }
         return redirect()->route('todo.index')->with('danger', 'Unauthorized action.');
@@ -52,7 +52,7 @@ class TodoController extends Controller
     public function uncomplete(Todo $todo)
     {
         if (Auth::id() == $todo->user_id) {
-            $todo->update(['is_complete' => false]);
+            $todo->update(['is_done' => false]);
             return redirect()->route('todo.index')->with('success', 'Todo marked as uncompleted.');
         }
         return redirect()->route('todo.index')->with('danger', 'Unauthorized action.');
@@ -89,7 +89,7 @@ class TodoController extends Controller
     public function deleteAllCompleted()
     {
         Todo::where('user_id', auth()->id())
-            ->where('is_complete', true)
+            ->where('is_done', true)
             ->delete();
 
         return redirect()->route('todo.index')->with('success', 'All completed todos deleted.');
