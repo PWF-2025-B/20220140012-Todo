@@ -7,6 +7,7 @@ use App\Http\Requests\CategoryRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CategoryController extends Controller
@@ -17,14 +18,8 @@ class CategoryController extends Controller
      */
     public function index(): View
     {
-        $categories = Category::where('user_id', auth()->user()->id)->get();
-        $todoCount = [];
-        
-        foreach ($categories as $category) {
-            $todoCount[$category->id] = $category->todos->count();
-        }
-        
-        return view('category.index', compact('categories', 'todoCount'));
+         $categories = Category::with('todos')->where('user_id', Auth::id())->get();
+         return view('category.index', compact('categories'));
     }
 
     /**
