@@ -10,6 +10,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [App\Http\Controllers\API\AuthController::class, 'login']);
 
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [App\Http\Controllers\API\AuthController::class, 'logout']);
     Route::get('/todos/search', [TodoController::class, 'search']);
